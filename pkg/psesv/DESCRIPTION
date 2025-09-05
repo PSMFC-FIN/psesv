@@ -1,0 +1,17 @@
+Package: psesv
+Title: PSESV shiny funtions
+Version: 0.0.5
+Authors@R: person("Jean", "Lee", email = "jean.lee@noaa.gov", role = c("cre"))
+Description: Functions that include HTML and set article and visualizations
+    numbers for the Pacific States E-journal of Scientific Visualization 
+    (PSESV).
+Depends: R (>= 3.3.0), shiny, shinydashboard
+Imports:
+    data.table
+License: Proprietary Do not distribute outside of PSESV.
+Encoding: UTF-8
+RoxygenNote: 6.1.0
+NeedsCompilation: no
+Packaged: 2025-09-05 22:09:29 UTC; jean.lee
+Author: Jean Lee [cre]
+Maintainer: Jean Lee <jean.lee@noaa.gov>
