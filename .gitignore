@@ -1,0 +1,28 @@
+# RStudio files
+.Rproj.user/
+.Rhistory
+.RData
+.Ruserdata
+
+# Logs and temporary files
+*.log
+*.out
+*.tmp
+
+# Shiny app runtime files
+rsconnect/
+
+# renv package library (local copies)
+renv/library/
+renv/staging/
+
+# OS-specific files
+.DS_Store
+Thumbs.db
+
+# Package build artifacts (if any)
+*.tar.gz
+*.Rcheck/
+
+# Optional: exclude test outputs or other generated files
+tests/testthat/_snaps/
