@@ -1,0 +1,904 @@
+
+#
+source("./global.R")
+
+rgb.palette <- colorRampPalette(c("yellow","gold","goldenrod2","brown"),space = "rgb")
+color1      <- c("gray90",rgb.palette(5))
+
+
+BIOMASS       <- data.table(results$BIOMASS)
+location      <- results$location
+length        <- results$length
+location_poll <- results$location_poll
+SN            <- data.table(results$SN)
+
+
+location       <- location[complete.cases(location[,c('DEPTHR','TEMPR','LON','LAT')])]
+location_poll  <- location_poll[complete.cases(location_poll[,c('LAT','LON')])]
+length       <- length[complete.cases(length[,c('LON','LAT','DEPTHR','TEMPR','CPUE')])]
+
+areas        <-data.table(unique(data.frame(BIOMASS)[c("SURVEY_DEFINITION_ID","AREA")]))
+
+
+shinyServer(
+  function(input,output,session) {
+
+	observe({x=input$plotT
+		updateSelectInput(session, "plotT.cent", selected = x)})
+              
+	observe({x3=input$survey
+		updateRadioButtons(session, "survey.cent", selected = x3)
+              		updateRadioButtons(session, "survey.temp", selected = x3)
+ 		updateRadioButtons(session, "survey.length", selected = x3)
+ 		updateRadioButtons(session, "survey.BIO", selected = x3)
+ 		updateRadioButtons(session, "survey.POP", selected = x3)})
+
+              observe({x1=input$species
+		updateSelectInput(session, "species.cent", selected = x1)
+              		updateSelectInput(session, "species.length", selected = x1)
+ 		updateSelectInput(session, "species.BIO", selected = x1)
+ 		updateSelectInput(session, "species.POP", selected = x1)})
+
+
+              observe({x2=input$AREA_W
+		updateRadioButtons(session, "AREA_W.cent", selected = x2)})
+
+
+	observe({y=input$plotT.cen
+		updateSelectInput(session, "plotT", selected = y)})
+              
+	observe({y1=input$survey.cent
+		updateRadioButtons(session, "survey", selected = y1)
+         		updateRadioButtons(session, "survey.temp", selected = y1)
+ 		updateRadioButtons(session, "survey.length", selected = y1)
+ 		updateRadioButtons(session, "survey.BIO", selected = y1)
+ 		updateRadioButtons(session, "survey.POP", selected = y1)})
+
+              observe({y2=input$species.cent
+		updateSelectInput(session, "species", selected = y2)
+              		updateSelectInput(session, "species.length", selected = y2)
+ 		updateSelectInput(session, "species.BIO", selected = y2)
+ 		updateSelectInput(session, "species.POP", selected = y2)})
+
+
+              observe({y3=input$AREA_W.cent
+		updateRadioButtons(session, "AREA_W", selected = y3)})
+
+
+	observe({z=input$survey.temp
+		updateRadioButtons(session, "survey", selected = z)
+              		updateRadioButtons(session, "survey.BIO", selected = z)
+ 		updateRadioButtons(session, "survey.length", selected =z)
+ 		updateRadioButtons(session, "survey.cent", selected =z)
+ 		updateRadioButtons(session, "survey.POP", selected = z)})
+	
+	observe({aa=input$survey.length
+		updateRadioButtons(session, "survey", selected = aa)
+              		updateRadioButtons(session, "survey.temp", selected = aa)
+ 		updateRadioButtons(session, "survey.BIO", selected = aa)
+ 		updateRadioButtons(session, "survey.cent", selected = aa)
+ 		updateRadioButtons(session, "survey.POP", selected = aa)})
+
+              observe({aa1=input$species.length
+		updateSelectInput(session, "species", selected = aa1)
+              		updateSelectInput(session, "species.BIO", selected = aa1)
+ 		updateSelectInput(session, "species.cent", selected = aa1)
+ 		updateSelectInput(session, "species.POP", selected = aa1)})
+
+	observe({bb=input$survey.BIO
+		updateRadioButtons(session, "survey", selected =bb)
+              		updateRadioButtons(session, "survey.temp", selected = bb)
+ 		updateRadioButtons(session, "survey.length", selected =bb)
+ 		updateRadioButtons(session, "survey.cent", selected = bb)
+ 		updateRadioButtons(session, "survey.POP", selected = bb)})
+
+              observe({bb1=input$species.BIO
+		updateSelectInput(session, "species", selected = bb1)
+              		updateSelectInput(session, "species.length", selected = bb1)
+ 		updateSelectInput(session, "species.cent", selected = bb1)
+ 		updateSelectInput(session, "species.POP", selected = bb1)})
+
+
+
+	observe({cc=input$survey.POP
+		updateRadioButtons(session, "survey", selected =cc)
+              		updateRadioButtons(session, "survey.temp", selected =cc)
+ 		updateRadioButtons(session, "survey.length", selected =cc)
+ 		updateRadioButtons(session, "survey.cent", selected =cc)
+ 		updateRadioButtons(session, "survey.BIO", selected =cc)})
+
+              observe({cc1=input$species.POP
+		updateSelectInput(session, "species", selected =cc1)
+              		updateSelectInput(session, "species.length", selected = cc1)
+ 		updateSelectInput(session, "species.cent", selected = cc1)
+ 		updateSelectInput(session, "species.BIO", selected =cc1)})
+
+
+
+    
+  output$plot1 <- renderPlot({
+
+    withProgress(message = 'Making plot', value = 0, {   
+      
+      location      <- location[SURVEY_DEFINITION_ID==input$survey.cent]
+      length        <- length[SURVEY_DEFINITION_ID==input$survey.cent & SPECIES_CODE==input$species.cent]
+      location_poll <- location_poll[SURVEY_DEFINITION_ID==input$survey.cent & SPECIES_CODE==input$species.cent]
+      SN            <- SN[SPECIES_CODE==input$species.cent]
+      
+      cn      <- paste(SN$COMMON_NAME)
+      sn      <- paste(SN$SPECIES_NAME)
+      plot.title <- bquote(.(cn)~" ("~italic(.(sn))~") ")
+      
+      validate(
+        need(sum(length$FREQUENCY)>=500,"Not enough measurements for this species and survey"),
+        need(length(unique(length$YEAR))>=2,"Not enough measurements for this species and survey")
+        )
+      
+     incProgress(1/5)
+      
+      
+      ## rounding bottom depth to nearest 0.5 meters and temperature to nearest 0.1 degree to simplify calculations
+      location$DEPTHR <- round(location$DEPTH)
+      location$TEMPR  <- round(location$TEMP,1)
+      
+      length$TEMPR    <- round(length$TEMP,1)
+      length$DEPTHR   <- round(length$DEPTH)
+      
+      length          <- data.table(merge(length,location_poll,by = c("YEAR","LON","LAT","SURVEY_DEFINITION_ID","STRATUM", "SPECIES_CODE","CPUE")))
+     
+      
+      x<-quantile(length$LENGTH,probs=c(0.1,0.3,0.7,0.9,1.0))
+      bins2<-c(0,as.numeric(x))
+      
+      
+      ## create length bins  
+      for ( i in 2:length(bins2)){
+        length$BIN[length$LENGTH<bins2[i] & length$LENGTH >= bins2[(i-1)]] <- bins2[(i-1)]
+      }
+      
+      label  <-array(dim=5)
+      label2 <-array(dim=5)
+      
+      
+      lab1<-c(trunc(bins2[1:5]/10),max(length$LENGTH/10))
+      lab2<-lab1-1
+      lab2[1]<-0
+      
+      for(i in 1:4){
+        label[i]<-paste(as.character(lab1)[i],"-",as.character(lab2)[i+1]," cm",sep="")
+        label2[i]<-i
+        
+      }
+      
+      label[5]<-paste(as.character(lab1)[5],"-",as.character(lab1)[6]," cm",sep="")
+      label2[5]<-5
+      
+      label<-data.frame(BIN=bins2[1:5],LABEL=as.factor(label),LABEL2=label2) 
+      length<-length[!is.na(length$TEMPR)]
+      length<-merge(length,label,by="BIN")
+      
+      
+      
+      data1<-list(location=location,length=length)
+      td1 <- Get_TEMP(data=data1,plotT=F)
+      td1$LON=1;td1$LAT=1; td1$DEPTHR=1;td1$TEMPR=1;td1$bin2=1;td1$CPUELAB="0"
+      incProgress(1/5)
+
+      if(input$survey.cent %in% c(46,47,48)){
+        location <- location[YEAR>1993]
+        length <- length[YEAR>1993]
+        td1<-td1[YEAR>1993]
+      }
+      
+     
+      
+      
+      yers    <- unique(length$YEAR)
+      yers2<- sort(unique(location$YEAR))
+      
+      if(input$survey.cent==98 & !1994 %in% length$YEAR){ location<-location[YEAR %in% yers]}
+      if(input$survey.cent %in% c(46,47,48) & !1993 %in% length$YEAR){ location<-location[YEAR %in% yers]}
+      if(input$survey.cent==52 & !1994 %in% length$YEAR){ location<-location[YEAR %in% yers]}
+      
+      length <- length[complete.cases(length[,c('CPUE','TEMPR')])]
+      
+      
+      rgb.palette <- colorRampPalette(c("gold","goldenrod2","darkorange2","brown"),space = "rgb") 
+      
+      color1      <- c("gray70",rgb.palette(5))
+      
+      
+      MTEMP <- Get_TEMP(data=data1,plotT=F)
+      
+      length <- length[complete.cases(length[,c('CPUE','TEMP','DEPTH')])]
+      
+      Length   <- data.table(merge(length,MTEMP,by=c("YEAR"),all=T))
+      
+
+     if(input$AREA_W.cent==T & input$survey.cent %in% c(46,47,48) )
+	      {   survey<-input$survey.cent
+            area <- SURVEY_AREA(location=location,surveyx=survey) 
+            length1<-merge(Length,area,all.x=T,by=c("YEAR","STRATUM","SURVEY_DEFINITION_ID","TEMP","STEMP","DEPTH","LAT","LON","DEPTHR","TEMPR"))
+          	length1<-length1[!is.na(W)]
+          	length1$CPUE<-length1$CPUE*length1$W
+          	length1$DEPTH<-length1$SDEPTH
+          	length1$LON<-length1$MLON
+          	length1$LAT <-length1$MLAT
+          	Length=length1
+          	}
+
+     incProgress(1/5)
+
+      if(input$plotT.cent %in% c(1,2))
+      {
+        if(input$plotT.cent==1)
+        {
+          Length <- Length[complete.cases(Length[,c('DEPTH','TEMP')])]
+          data1 <- Length[,list(FREQ=sum(FREQUENCY),CPUE=mean(CPUE)),by= 'YEAR,SPECIES_CODE,REGI,BIN,LABEL,LABEL2,TEMP,DEPTH']
+          data2 <- Length[,list(SUM=sum(FREQUENCY)),by = 'YEAR,SPECIES_CODE,REGI,TEMP,DEPTH']
+          data3 <- merge(data1,data2,all=T,by=c("YEAR","SPECIES_CODE","REGI","TEMP","DEPTH"))
+          data3 <- data3[,list(PLOT=sum((FREQ/SUM)*CPUE)),by = 'YEAR,SPECIES_CODE,REGI,BIN,LABEL,LABEL2,TEMP,DEPTH']
+          data8<-data3[,list(my=-weighted.mean(DEPTH,PLOT),mx=weighted.mean(TEMP,PLOT),myVAR=weighted.var.se(DEPTH,PLOT),mxVAR=weighted.var.se(TEMP,PLOT)),by='SPECIES_CODE,REGI,BIN,LABEL,LABEL2']
+          data6<-data3[,list(yC=-weighted.mean(DEPTH,PLOT),xC=weighted.mean(TEMP,PLOT),yVAR=weighted.var.se(DEPTH,PLOT),xVAR=weighted.var.se(TEMP,PLOT)),by='YEAR,SPECIES_CODE,REGI,BIN,LABEL,LABEL2']
+        }
+        
+        if(input$plotT.cent==2)
+        {
+          Length <- Length[complete.cases(Length[,c('LAT','LON')])]
+          length1<-Length
+          length1$x<-length1$LON
+          length1$y<-length1$LAT
+          coordinates(length1)<-c("x","y")
+          proj4string(length1)<-CRS("+proj=longlat +datum=WGS84")
+          LENGTH<-spTransform(length1,CRS("+proj=utm +zone=2 ellps=WGS84"))
+          Length$x<-LENGTH$x/1000
+          Length$y<-LENGTH$y/1000
+          Length<-Length[!is.na(x)]
+          data1 <- Length[,list(FREQ=sum(FREQUENCY),CPUE=mean(CPUE)),by= 'YEAR,SPECIES_CODE,REGI,BIN,LABEL,LABEL2,x,y']
+          data2 <- Length[,list(SUM=sum(FREQUENCY)),by = 'YEAR,SPECIES_CODE,REGI,x,y']
+          data3 <- merge(data1,data2,all=T,by=c("YEAR","SPECIES_CODE","REGI","x","y"))
+          data3 <- data3[,list(PLOT=sum((FREQ/SUM)*CPUE)),by = 'YEAR,SPECIES_CODE,REGI,BIN,LABEL,LABEL2,x,y']
+          data8<-data3[,list(my=weighted.mean(y,PLOT),mx=weighted.mean(x,PLOT),myVAR=weighted.var.se(y,PLOT),mxVAR=weighted.var.se(x,PLOT)),by='SPECIES_CODE,REGI,BIN,LABEL,LABEL2']
+          data6<-data3[,list(yC=weighted.mean(y,PLOT),xC=weighted.mean(x,PLOT),yVAR=weighted.var.se(y,PLOT),xVAR=weighted.var.se(x,PLOT)),by='YEAR,SPECIES_CODE,REGI,BIN,LABEL,LABEL2']
+        }
+        incProgress(1/5)
+        data6$xSEM <-sqrt(data6$xVAR)*1.96
+        data6$ySEM <- sqrt(data6$yVAR)*1.96
+        data7<-merge(data6,SN,by="SPECIES_CODE")
+        
+        x1<-data.table(data7)
+        x1<-x1[,list(LABEL2=min(as.numeric(LABEL2))),by="LABEL"]
+        x1<-x1[order(x1$LABEL2),]
+        data7$LABEL <- factor(data7$LABEL,levels=x1$LABEL) 
+        
+        d <- ggplot(data=data7)
+        d <- d+geom_point(data=data7,aes(y=yC,x=xC,color=REGI,shape=REGI,size=REGI))
+        d <- d + geom_pointrange(data=data7,aes(y=yC,x=xC,ymax = yC + ySEM, ymin=yC - ySEM,color=REGI,shape=REGI,size=REGI)) 
+        d <- d + geom_errorbarh(data=data7,aes(x=xC,y=yC,xmax = xC + xSEM, xmin=xC - xSEM,color=REGI,size=REGI))
+        d <- d + geom_point(data=data8,aes(y=my,x=mx,shape=REGI),size=3)
+        d <- d + scale_colour_manual(name="Shelf temp.",values=c("blue","gray60","red"))+scale_shape_manual(name="Shelf temp.",values=c(15,17,16))+scale_size_manual(name="Shelf temp.",values=rep(0.25,3))
+        
+        if(input$plotT.cent==1){
+          d <- d + xlab(expression("Temperature ("* degree * C *")"))
+          d <- d + ylab("Depth (m)")
+        }
+        
+        if(input$plotT.cent==2){
+          d <- d + xlab("Eastings UTM (km)")
+          d <- d + ylab("Northings UTM (km)")
+        }
+        
+        
+        d <- d + theme1(base_size=20)
+        d <- d + ggtitle(plot.title) 
+        d <- d + facet_wrap(~LABEL,shrink=FALSE,ncol=length(unique(data7$LABEL2)))
+        incProgress(1/5)
+        print(d)
+        
+      }
+      
+      if(input$plotT.cent %in% c(3,4))
+      {
+        
+        
+        if(input$plotT.cent==3)
+        {
+          Length <- Length[complete.cases(Length[,c('DEPTH','TEMP')])]
+          data1 <- Length[,list(FREQ=sum(FREQUENCY),CPUE=mean(CPUE)),by= 'YEAR,SPECIES_CODE,BIN,LABEL,LABEL2,TEMP,DEPTH']
+          data2 <- Length[,list(SUM=sum(FREQUENCY)),by = 'YEAR,SPECIES_CODE,TEMP,DEPTH']
+          data3 <- merge(data1,data2,all=T,by=c("YEAR","SPECIES_CODE","TEMP","DEPTH"))
+          data3 <- data3[,list(PLOT=sum((FREQ/SUM)*CPUE)),by = 'YEAR,SPECIES_CODE,BIN,LABEL,LABEL2,TEMP,DEPTH']
+          data8<-data3[,list(my=-weighted.mean(DEPTH,PLOT),mx=weighted.mean(TEMP,PLOT),myVAR=weighted.var.se(DEPTH,PLOT),mxVAR=weighted.var.se(TEMP,PLOT)),by='SPECIES_CODE,BIN,LABEL,LABEL2']
+          data6<-data3[,list(yC=-weighted.mean(DEPTH,PLOT),xC=weighted.mean(TEMP,PLOT),yVAR=weighted.var.se(DEPTH,PLOT),xVAR=weighted.var.se(TEMP,PLOT)),by='YEAR,SPECIES_CODE,BIN,LABEL,LABEL2']
+        }
+        
+        if(input$plotT.cent==4)
+        {
+          Length <- Length[complete.cases(Length[,c('LAT','LON')])]
+          length1<-Length
+          length1$x<-length1$LON
+          length1$y<-length1$LAT
+          coordinates(length1)<-c("x","y")
+          proj4string(length1)<-CRS("+proj=longlat +datum=WGS84")
+          LENGTH<-spTransform(length1,CRS("+proj=utm +zone=2 ellps=WGS84"))
+          Length$x<-LENGTH$x/1000
+          Length$y<-LENGTH$y/1000
+          Length<-Length[!is.na(x)]
+          data1 <- Length[,list(FREQ=sum(FREQUENCY),CPUE=mean(CPUE)),by= 'YEAR,SPECIES_CODE,BIN,LABEL,LABEL2,x,y']
+          data2 <- Length[,list(SUM=sum(FREQUENCY)),by = 'YEAR,SPECIES_CODE,x,y']
+          data3 <- merge(data1,data2,all=T,by=c("YEAR","SPECIES_CODE","x","y"))
+          data3 <- data3[,list(PLOT=sum((FREQ/SUM)*CPUE)),by = 'YEAR,SPECIES_CODE,BIN,LABEL,LABEL2,x,y']
+          data8<-data3[,list(my=weighted.mean(y,PLOT),mx=weighted.mean(x,PLOT),myVAR=weighted.var.se(y,PLOT),mxVAR=weighted.var.se(x,PLOT)),by='SPECIES_CODE,BIN,LABEL,LABEL2']
+          data6<-data3[,list(yC=weighted.mean(y,PLOT),xC=weighted.mean(x,PLOT),yVAR=weighted.var.se(y,PLOT),xVAR=weighted.var.se(x,PLOT)),by='YEAR,SPECIES_CODE,BIN,LABEL,LABEL2']
+        }
+        incProgress(1/5)
+        data6$xSEM <-sqrt(data6$xVAR)*1.96
+        data6$ySEM <- sqrt(data6$yVAR)*1.96
+        data7<-merge(data6,SN,by="SPECIES_CODE")
+        
+        x1<-data.table(data7)
+        x1<-x1[,list(LABEL2=min(as.numeric(LABEL2))),by="LABEL"]
+        x1<-x1[order(x1$LABEL2),]
+        data7$LABEL <- factor(data7$LABEL,levels=x1$LABEL) 
+        
+        d <- ggplot(data=data7)
+        d <- d+geom_point(data=data7,aes(y=yC,x=xC,color=factor(YEAR),size=factor(YEAR)))
+        d <- d + geom_pointrange(data=data7,aes(y=yC,x=xC,ymax = yC + ySEM, ymin=yC - ySEM,color=factor(YEAR),size=factor(YEAR))) 
+        d <- d + geom_errorbarh(data=data7,aes(x=xC,y=yC,xmax = xC + xSEM, xmin=xC - xSEM,color=factor(YEAR),size=factor(YEAR)))
+        d <- d + geom_path(data=data7,aes(x=xC,y=yC,group=1),size=0.15,color="gray70")
+        d <- d + geom_point(data=data8,aes(y=my,x=mx),size=2)
+        d <- d + scale_colour_manual(name="Year",values=c(rgb.palette(length(unique(data7$YEAR))+1)))+scale_size_manual(name="Year",values=rep(0.5,length(unique(data7$YEAR))))
+        
+        if(input$plotT.cent==4){
+          d <- d + xlab("Eastings UTM (km)")
+          d <- d + ylab("Northings UTM (km)")
+        }
+        
+        if(input$plotT.cent==3){
+          d <- d + xlab(expression("Temperature ("* degree * C *")"))
+          d <- d + ylab("Depth (m)")
+        }
+        
+       
+        d <- d + theme1(base_size=20)
+        d <- d + ggtitle(plot.title) 
+        d <- d + facet_wrap(~LABEL,shrink=FALSE,ncol=length(unique(data7$LABEL2)))
+        incProgress(1/5)
+        print(d)
+      }
+      
+      if(input$plotT.cent %in% c(5,6))
+      { 
+         rgb.palette <- colorRampPalette(c("gold","goldenrod2","darkorange2","brown"),space = "rgb") 
+        
+        if(input$plotT.cent==5)
+        {
+          Length <- Length[complete.cases(Length[,c('DEPTH','TEMP')])]
+          data1 <- Length[,list(FREQ=sum(FREQUENCY),CPUE=mean(CPUE)),by= 'YEAR,SPECIES_CODE,BIN,LABEL,LABEL2,TEMP,DEPTH']
+          data2 <- Length[,list(SUM=sum(FREQUENCY)),by = 'YEAR,SPECIES_CODE,TEMP,DEPTH']
+          data3 <- merge(data1,data2,all=T,by=c("YEAR","SPECIES_CODE","TEMP","DEPTH"))
+          data3 <- data3[,list(PLOT=sum((FREQ/SUM)*CPUE)),by = 'YEAR,SPECIES_CODE,BIN,LABEL,LABEL2,TEMP,DEPTH']
+          data8<-data3[,list(my=-weighted.mean(DEPTH,PLOT),mx=weighted.mean(TEMP,PLOT),myVAR=weighted.var.se(DEPTH,PLOT),mxVAR=weighted.var.se(TEMP,PLOT)),by='SPECIES_CODE,BIN,LABEL,LABEL2']
+          data6<-data3[,list(yC=-weighted.mean(DEPTH,PLOT),xC=weighted.mean(TEMP,PLOT),yVAR=weighted.var.se(DEPTH,PLOT),xVAR=weighted.var.se(TEMP,PLOT)),by='YEAR,SPECIES_CODE,BIN,LABEL,LABEL2']
+        }
+        
+        if(input$plotT.cent==6)
+        {
+          Length    <- Length[complete.cases(Length[,c('LAT','LON')])]
+          length1   <- Length
+          length1$x <- length1$LON
+          length1$y <- length1$LAT
+          coordinates(length1)<-c("x","y")
+          proj4string(length1)<-CRS("+proj=longlat +datum=WGS84")
+          LENGTH    <- spTransform(length1,CRS("+proj=utm +zone=2 ellps=WGS84"))
+          Length$x  <- LENGTH$x/1000
+          Length$y  <- LENGTH$y/1000
+          
+          Length <- Length[!is.na(x)]
+          data1  <- Length[,list(FREQ=sum(FREQUENCY),CPUE=mean(CPUE)),by= 'YEAR,SPECIES_CODE,BIN,LABEL,LABEL2,x,y']
+          data2  <- Length[,list(SUM=sum(FREQUENCY)),by = 'YEAR,SPECIES_CODE,x,y']
+          data3  <- merge(data1,data2,all=T,by=c("YEAR","SPECIES_CODE","x","y"))
+          data3  <- data3[,list(PLOT=sum((FREQ/SUM)*CPUE)),by = 'YEAR,SPECIES_CODE,BIN,LABEL,LABEL2,x,y']
+          data8  <- data3[,list(my=weighted.mean(y,PLOT),mx=weighted.mean(x,PLOT),myVAR=weighted.var.se(y,PLOT),mxVAR=weighted.var.se(x,PLOT)),by='SPECIES_CODE,BIN,LABEL,LABEL2']
+          data6  <- data3[,list(yC=weighted.mean(y,PLOT),xC=weighted.mean(x,PLOT),yVAR=weighted.var.se(y,PLOT),xVAR=weighted.var.se(x,PLOT)),by='YEAR,SPECIES_CODE,BIN,LABEL,LABEL2']
+        }
+        incProgress(1/5)
+        data8$mxSEM <-sqrt(data8$mxVAR)*1.96
+        data8$mySEM <- sqrt(data8$myVAR)*1.96
+        data7<-merge(data6,SN,by="SPECIES_CODE")
+        
+        x1<-data.table(data7)
+        x1<-x1[,list(LABEL2=min(as.numeric(LABEL2))),by="LABEL"]
+        x1<-x1[order(x1$LABEL2),]
+        data7$LABEL <- factor(data7$LABEL,levels=x1$LABEL) 
+        data8$LABEL <- factor(data8$LABEL,levels=x1$LABEL) 
+        data8       <- data8[order(LABEL),]
+        
+        d <- ggplot(data=data7)
+        d <- d + geom_point(data=data7,aes(y=yC,x=xC,color=LABEL,size=LABEL,shape=LABEL))
+        d <- d + geom_path(data=data8,aes(y=my,x=mx,group=1),size=0.2,color="gray70") 
+        d <- d + geom_errorbar(data=data8,aes(x=mx,ymax = my + mySEM, ymin=my - mySEM),size=0.2,width=0.0) 
+        d <- d + geom_errorbarh(data=data8,aes(x=mx,y=my,xmax = mx + mxSEM, xmin=mx - mxSEM),size=0.2,height=0.0)
+        
+        d <- d + geom_point(data=data8,aes(y=my,x=mx,shape=LABEL,color=LABEL),size=2)
+        d <- d + scale_colour_manual(name="Size (cm)",values=c(rgb.palette(length(unique(data7$LABEL))+1)))
+        d <- d + scale_size_manual(name="Size (cm)",values=rep(2,length(unique(data7$LABEL))))
+        d <- d + scale_shape_manual(name="Size (cm)",values= c(21,25,15,19,17))
+        
+        if(input$plotT.cent==6){
+          d <- d + xlab("Eastings UTM (km)")
+          d <- d + ylab("Northings UTM (km)")
+        }
+        
+        if(input$plotT.cent==5){
+          d <- d + xlab(expression("Temperature ("* degree * C *")"))
+          d <- d + ylab("Depth (m)")
+        }
+        
+        d <- d + theme1(base_size=20)
+        d <- d + ggtitle(plot.title) 
+       incProgress(1/5)
+        print(d)
+      }
+      
+      if(input$plotT.cent %in% c(7,8))
+      {
+        Length <- Length[SEX %in% c(1,2)]
+        
+        if(input$plotT.cent==7)
+        {
+          Length <- Length[complete.cases(Length[,c('DEPTH','TEMP')])]
+          data1 <- Length[,list(FREQ=sum(FREQUENCY),CPUE=mean(CPUE)),by= 'YEAR,SPECIES_CODE,SEX,BIN,LABEL,LABEL2,TEMP,DEPTH']
+          data2 <- Length[,list(SUM=sum(FREQUENCY)),by = 'YEAR,SPECIES_CODE,SEX,TEMP,DEPTH']
+          data3 <- merge(data1,data2,all=T,by=c("YEAR","SPECIES_CODE","SEX","TEMP","DEPTH"))
+          data3 <- data3[,list(PLOT=sum((FREQ/SUM)*CPUE)),by = 'YEAR,SPECIES_CODE,SEX,BIN,LABEL,LABEL2,TEMP,DEPTH']
+          data8<-data3[,list(my=-weighted.mean(DEPTH,PLOT),mx=weighted.mean(TEMP,PLOT),myVAR=weighted.var.se(DEPTH,PLOT),mxVAR=weighted.var.se(TEMP,PLOT)),by='SPECIES_CODE,SEX,BIN,LABEL,LABEL2']
+          data6<-data3[,list(yC=-weighted.mean(DEPTH,PLOT),xC=weighted.mean(TEMP,PLOT),yVAR=weighted.var.se(DEPTH,PLOT),xVAR=weighted.var.se(TEMP,PLOT)),by='YEAR,SPECIES_CODE,SEX,BIN,LABEL,LABEL2']
+        }
+        
+        if(input$plotT.cent==8)
+        {
+          Length <- Length[complete.cases(Length[,c('LAT','LON')])]
+          length1<-Length
+          length1$x<-length1$LON
+          length1$y<-length1$LAT
+          coordinates(length1)<-c("x","y")
+          proj4string(length1)<-CRS("+proj=longlat +datum=WGS84")
+          LENGTH<-spTransform(length1,CRS("+proj=utm +zone=2 ellps=WGS84"))
+          Length$x<-LENGTH$x/1000
+          Length$y<-LENGTH$y/1000
+          Length<-Length[!is.na(x)]
+          data1 <- Length[,list(FREQ=sum(FREQUENCY),CPUE=mean(CPUE)),by= 'YEAR,SPECIES_CODE,SEX,BIN,LABEL,LABEL2,x,y']
+          data2 <- Length[,list(SUM=sum(FREQUENCY)),by = 'YEAR,SPECIES_CODE,SEX,x,y']
+          data3 <- merge(data1,data2,all=T,by=c("YEAR","SPECIES_CODE","SEX","x","y"))
+          data3 <- data3[,list(PLOT=sum((FREQ/SUM)*CPUE)),by = 'YEAR,SPECIES_CODE,SEX,BIN,LABEL,LABEL2,x,y']
+          data8 <- data3[,list(my=weighted.mean(y,PLOT),mx=weighted.mean(x,PLOT),myVAR=weighted.var.se(y,PLOT),mxVAR=weighted.var.se(x,PLOT)),by='SPECIES_CODE,SEX,BIN,LABEL,LABEL2']
+          data6<-data3[,list(yC=weighted.mean(y,PLOT),xC=weighted.mean(x,PLOT),yVAR=weighted.var.se(y,PLOT),xVAR=weighted.var.se(x,PLOT)),by='YEAR,SPECIES_CODE,SEX,BIN,LABEL,LABEL2']
+        }
+        incProgress(1/5)
+        data8$SEX2 <-as.factor(ifelse(data8$SEX==1,"Male","Female"))
+        data6$xSEM <-sqrt(data6$xVAR)*1.96
+        data6$ySEM <- sqrt(data6$yVAR)*1.96
+        data7<-merge(data6,SN,by="SPECIES_CODE")
+        
+        x1<-data.table(data7)
+        x1<-x1[,list(LABEL2=min(as.numeric(LABEL2))),by="LABEL"]
+        x1<-x1[order(x1$LABEL2),]
+        data7$LABEL <- factor(data7$LABEL,levels=x1$LABEL) 
+        data7$SEX2 <-as.factor(ifelse(data7$SEX==1,"Male","Female"))
+        
+       
+        d <- ggplot(data=data7)
+        d <- d + geom_point(data=data7,aes(y=yC,x=xC,color=SEX2,shape=SEX2,size=SEX2))
+        d <- d + geom_pointrange(data=data7,aes(y=yC,x=xC,ymax = yC + ySEM, ymin=yC - ySEM,color=SEX2,shape=SEX2,size=SEX2)) 
+        d <- d + geom_errorbarh(data=data7,aes(x=xC,y=yC,xmax = xC + xSEM, xmin=xC - xSEM,color=SEX2,size=SEX2))
+        d <- d + scale_colour_manual(name="Sex",values=c("salmon","light blue"))+scale_shape_manual(name="Sex",values=c(17,16))+scale_size_manual(name="Sex",values=rep(0.25,2))
+        d <- d + geom_point(data=data8,aes(y=my,x=mx,shape=SEX2),guide=FALSE,size=2)
+        
+        if(input$plotT.cent==7)
+        {
+          d <- d + xlab(expression("Bottom temp. ("* degree * C *")"))
+          d <- d + ylab("Bottom depth (m)")
+        }
+        
+        if(input$plotT.cent==8)
+        {
+          d <- d + xlab("Eastings UTM (km)")
+          d <- d + ylab("Northings UTM (km)")
+        }
+        
+        d <- d + theme1(base_size=20)
+        d <- d + ggtitle(plot.title) 
+        d <- d + facet_wrap(~LABEL,shrink=FALSE,ncol=length(unique(data7$LABEL2)))
+        incProgress(1/5)
+        print(d)
+      }
+      
+      if(input$plotT.cent %in% c(9))
+      { 
+        rgb.palette <- colorRampPalette(c("red","orange","green","turquoise","blue"),space = "rgb")
+        Length    <- Length[complete.cases(Length[,c('LAT','LON')])]
+        length1   <- Length
+        length1$x <- length1$LON
+        length1$y <- length1$LAT
+        coordinates(length1)<-c("x","y")
+        proj4string(length1)<-CRS("+proj=longlat +datum=WGS84")
+        LENGTH    <- spTransform(length1,CRS("+proj=utm +zone=2 ellps=WGS84"))
+        Length$x  <- LENGTH$x/1000
+        Length$y  <- LENGTH$y/1000
+        
+        Length <- Length[complete.cases(Length[,c('x','DEPTH')])]
+        data1 <- Length[,list(FREQ=sum(FREQUENCY),CPUE=mean(CPUE)),by= 'YEAR,SPECIES_CODE,BIN,LABEL,LABEL2,x,DEPTH']
+        data2 <- Length[,list(SUM=sum(FREQUENCY)),by = 'YEAR,SPECIES_CODE,x,DEPTH']
+        data3 <- merge(data1,data2,all=T,by=c("YEAR","SPECIES_CODE","x","DEPTH"))
+        data3 <- data3[,list(PLOT=sum((FREQ/SUM)*CPUE)),by = 'YEAR,SPECIES_CODE,BIN,LABEL,LABEL2,x,DEPTH']
+        data8<-data3[,list(my=-weighted.mean(DEPTH,PLOT),mx=weighted.mean(x,PLOT),myVAR=weighted.var.se(DEPTH,PLOT),mxVAR=weighted.var.se(x,PLOT)),by='SPECIES_CODE,BIN,LABEL,LABEL2']
+        data6<-data3[,list(yC=-weighted.mean(DEPTH,PLOT),xC=weighted.mean(x,PLOT),yVAR=weighted.var.se(DEPTH,PLOT),xVAR=weighted.var.se(x,PLOT)),by='YEAR,SPECIES_CODE,BIN,LABEL,LABEL2']
+        incProgress(1/5)
+        data8$mxSEM <-sqrt(data8$mxVAR)*1.96
+        data8$mySEM <- sqrt(data8$myVAR)*1.96
+        data7<-merge(data6,SN,by="SPECIES_CODE")
+        
+        x1<-data.table(data7)
+        x1<-x1[,list(LABEL2=min(as.numeric(LABEL2))),by="LABEL"]
+        x1<-x1[order(x1$LABEL2),]
+        data7$LABEL <- factor(data7$LABEL,levels=x1$LABEL) 
+        data8$LABEL <- factor(data8$LABEL,levels=x1$LABEL) 
+        data8       <- data8[order(LABEL),]
+        
+        d <- ggplot(data=data7)
+        d <- d + geom_point(data=data7,aes(y=yC,x=xC,color=LABEL,size=LABEL,shape=LABEL))
+        d <- d + geom_path(data=data8,aes(y=my,x=mx,group=1),size=0.2,color="gray70") 
+        d <- d + geom_errorbar(data=data8,aes(x=mx,ymax = my + mySEM, ymin=my - mySEM),size=0.2,width=0.0) 
+        d <- d + geom_errorbarh(data=data8,aes(x=mx,y=my,xmax = mx + mxSEM, xmin=mx - mxSEM),size=0.2,height=0.0)
+        
+        d <- d + geom_point(data=data8,aes(y=my,x=mx,shape=LABEL,color=LABEL),size=2)
+        d <- d + scale_colour_manual(name="Size (cm)",values=c(rgb.palette(length(unique(data7$LABEL))+1)))
+        d <- d + scale_size_manual(name="Size (cm)",values=rep(2,length(unique(data7$LABEL))))
+        d <- d + scale_shape_manual(name="Size (cm)",values= c(21,25,15,19,17))
+        
+        d <- d + xlab("Eastings UTM (km)")
+        d <- d + ylab("Depth (m)")
+        
+        d <- d + theme1(base_size=20)
+        d <- d + ggtitle(plot.title) 
+        incProgress(1/5)
+        print(d)
+      }
+
+     })
+  })
+  
+
+  output$plot2 <- renderPlot({
+      location      <- location[SURVEY_DEFINITION_ID==input$survey.temp]
+      length        <- length[SURVEY_DEFINITION_ID==input$survey.temp & SPECIES_CODE==21740]
+      data1<-list(location=location,length=length)
+      Get_TEMP(data=data1,plotT=TRUE)
+  })
+
+  
+  
+
+
+  output$plot3 <-renderPlot({
+      data1  <- length[SURVEY_DEFINITION_ID==input$survey.length & SPECIES_CODE==input$species.length]
+       SN     <- SN[SPECIES_CODE==input$species.length]
+       AREA<- areas[SURVEY_DEFINITION_ID==input$survey.length]$AREA
+       cn      <- paste(SN$COMMON_NAME)
+      
+      data1<-data1[LENGTH>0 & !is.na(LENGTH)& is.finite(LENGTH)]
+      data1<-data1[SEX!=3]
+      test<-data1[,list(test=sum(FREQUENCY)),by='YEAR,SEX']
+      
+      validate(
+        need(min(test$test) > 0,"Too few measurements per sex for species and survey in a given year"),
+        need(length(unique(test$YEAR))>=3,"Fewer than 3 years of measurements for this species and survey")
+      )
+      
+     plot_DIST(data=data1, sn=cn, area=AREA)
+      
+    })
+    
+
+  
+  
+
+
+
+  output$plot4 <- renderPlot({
+    withProgress(message = 'Making plot', value = 0, {
+            
+       location      <- location[SURVEY_DEFINITION_ID==input$survey]
+       length        <- length[SURVEY_DEFINITION_ID==input$survey & SPECIES_CODE==input$species]
+       location_poll <- location_poll[SURVEY_DEFINITION_ID==input$survey & SPECIES_CODE==input$species]
+       SN            <- SN[SPECIES_CODE==input$species]
+       
+       cn      <- paste(SN$COMMON_NAME)
+       sn      <- paste(SN$SPECIES_NAME)
+       incProgress(1/5)
+       validate(
+         need(sum(length$FREQUENCY)>=500,"Not enough measurements for this species and survey"),
+         need(length(unique(length$YEAR))>=2,"Not enough measurements for this species and survey")
+       )
+       ## rounding bottom depth to nearest 0.5 meters and temperature to nearest 0.1 degree to simplify calculations
+       location$DEPTHR <- round(location$DEPTH)
+       location$TEMPR  <- round(location$TEMP,1)
+       
+       length$TEMPR    <- round(length$TEMP,1)
+       length$DEPTHR   <- round(length$DEPTH)
+       
+       length          <- data.table(merge(length,location_poll,by = c("YEAR","LON","LAT","SURVEY_DEFINITION_ID","STRATUM", "SPECIES_CODE","CPUE")))
+       
+       
+       x<-quantile(length$LENGTH,probs=c(0.1,0.3,0.7,0.9,1.0))
+       bins2<-c(0,as.numeric(x))
+       
+       
+       ## create length bins  
+       for ( i in 2:length(bins2)){
+         length$BIN[length$LENGTH<bins2[i] & length$LENGTH >= bins2[(i-1)]] <- bins2[(i-1)]
+       }
+       
+       label<-array(dim=5)
+       label2<-array(dim=5)
+       
+       
+       lab1<-c(trunc(bins2[1:5]/10),max(length$LENGTH/10))
+       lab2<-lab1-1
+       lab2[1]<-0
+       incProgress(1/5)
+       for(i in 1:4){
+         label[i]<-paste(as.character(lab1)[i],"-",as.character(lab2)[i+1]," cm",sep="")
+         label2[i]<-i
+         
+       }
+       
+       label[5]<-paste(as.character(lab1)[5],"-",as.character(lab1)[6]," cm",sep="")
+       label2[5]<-5
+       
+       label<-data.frame(BIN=bins2[1:5],LABEL=as.factor(label)) 
+       length<-length[!is.na(length$TEMPR)]
+       length<-merge(length,label,by="BIN")
+       
+       
+       
+       data1<-list(location=location,length=length)
+       td1 <- Get_TEMP(data=data1, plotT=FALSE)
+       td1$LON=1;td1$LAT=1; td1$DEPTHR=1;td1$TEMPR=1;td1$bin2=1;td1$CPUELAB="0"
+       
+       
+       if(input$survey %in% c(46,47,48)){
+         location <- location[YEAR>1990]
+         length <- length[YEAR>1990]
+         td1<-td1[YEAR>1990]
+       }
+       
+       
+       
+       yers    <- unique(length$YEAR)
+       yers2<- sort(unique(location$YEAR))
+       
+       if(input$survey==98 & !1994 %in% length$YEAR){ location<-location[YEAR %in% yers]}
+       if(input$survey %in% c(46,47,48) & !1993 %in% length$YEAR){ location<-location[YEAR %in% yers]}
+       if(input$survey==52 & !1994 %in% length$YEAR){ location<-location[YEAR %in% yers]}
+       
+       length <- length[complete.cases(length[,c('CPUE','TEMPR')])]
+       
+       
+       rgb.palette <- colorRampPalette(c("yellow","gold","goldenrod2","brown"),space = "rgb") 
+       
+       color1      <- c("gray70",rgb.palette(5))
+       
+       ## Temperature plot
+       if(input$plotT%in%c(1,3,5,7,9))
+       { 
+         incProgress(1/5)
+         ## rounding depth to 20 m increments for visualization purposes.
+         location$DEPTHR <- round(location$DEPTH,-1)
+         length$DEPTHR   <- round(length$DEPTH,-1)
+         location$TEMPR <- round(location$TEMP,1)
+         length$TEMPR   <- round(length$TEMP,1)
+         
+         location$T <-1
+         location1  <- location[,list(NUMBER=sum(T)),by= 'YEAR,DEPTHR,TEMPR']
+         data1      <- length[,list(FREQ=sum(FREQUENCY)),by= 'YEAR,BIN,LABEL,DEPTHR,TEMPR']
+         data2      <- length[,list(SUM=sum(FREQUENCY),CPUE=mean(CPUE)),by = 'YEAR,DEPTHR,TEMPR']
+         data3      <- merge(data1,data2,all=T,by=c("YEAR","DEPTHR","TEMPR"))
+         data3      <- data3[,list(PLOT=mean((FREQ/SUM)*CPUE)),by = 'YEAR,BIN,LABEL,TEMPR,DEPTHR']
+       } 
+       
+       ## Location plot 
+       if(input$plotT%in% c(2,4,6,8))
+       { 
+         location1  <- location[,list(NUMBER=length(YEAR)),by= 'YEAR,LON,LAT']
+         data1      <- length[,list(FREQ=sum(FREQUENCY)),by= 'YEAR,BIN,LABEL,LON,LAT']
+         data2      <- length[,list(SUM=sum(FREQUENCY),CPUE=mean(CPUE)),by = 'YEAR,LON,LAT']
+         data3      <- merge(data1,data2,all=T,by=c("YEAR","LON","LAT"))
+         data3      <- data3[,list(PLOT=mean((FREQ/SUM)*CPUE)),by = 'YEAR,BIN,LABEL,LON,LAT']
+       }
+       
+       incProgress(1/5)
+       data3<-data3[order(data3$PLOT),]
+       
+       bins2x     <- seq(0,max(log(data3$PLOT)),length=7)
+       bins2      <- c(0,exp(bins2x[2:7]))
+       
+       for( j in 3:7){
+         data3$bin2[data3$PLOT>bins2[j-1] & data3$PLOT<=bins2[j]]<-max(1,round(bins2[(j-1)]))
+       }
+       
+       data3$bin2[is.na(data3$bin2)]<-0
+       
+       dataT <- data3[order(data3$bin2),]
+       label2<-array(dim=6)
+       label4<-array(dim=6)
+       
+       binsx<-sort(bins2)
+       binsx[binsx>0&binsx<0.5]<-1
+       binsx<-round(binsx)
+       lab1<-binsx
+       lab2<-lab1-1
+       lab2[1]<-1
+       lab1<-formatC(lab1,format="d",big.mark=",")
+       lab2<-formatC(lab2,format="d",big.mark=",")
+       
+       label2[1]<-"0"
+       label2[2]<-paste("b) 0.1 - ",lab2[3],sep="")
+       
+       test=c("x","a","b","c","d","e","f")
+       
+       for(i in 4:(length(lab1)-1)){
+         label2[i-1]<-paste(test[i],") ",lab1[i-1]," - ",lab2[i],sep="")
+       }
+       
+       label2[6]<-paste("f) ",lab1[6]," - ",lab1[7],sep="")
+       
+       label3<-data.frame(bin2=binsx[1:6],CPUELAB=label2)
+       label3$ID<-as.numeric(as.factor(label3$CPUELAB))
+       label3$ID2<-c(1:6)
+       label3$color<-color1
+       
+       
+       
+       label4[1]<-"0"
+       label4[2]<-paste("0.1 - ",lab2[3],sep="")
+       
+       for(i in 4:(length(lab1)-1)){
+         label4[i-1]<-paste(lab1[i-1]," - ",lab2[i],sep="")
+       }
+       
+       label4[6]<-paste(lab1[6]," - ",lab1[7],sep="")
+       
+       label3<-data.frame(bin2=binsx[1:6],CPUELAB=label2,CPUELAB2=label4)
+       label3$ID<-as.numeric(as.factor(label3$CPUELAB))
+       label3$ID2<-c(1:6)
+       label3$color<-color1
+       
+       dataT<-merge(dataT,label3,by="bin2")
+       incProgress(1/5)
+       
+     
+       dataT$CPUELAB <- factor(dataT$CPUELAB,levels=label3$CPUELAB)
+       
+       
+       BINS<-sort(unique(dataT$BIN))
+       
+       dataT <- dataT[dataT$BIN==BINS[input$cat1]]
+       
+       l1<-as.character(unique(dataT$LABEL))
+       
+       title1 <- bquote(.(cn)~" ("~italic(.(sn))~") "~.(l1))
+       
+       
+       if(input$plotT%in%c(1,3,5,7,9)){ dataT <- merge(location1,dataT,all.x=T,by=c("YEAR","TEMPR","DEPTHR"),allow.cartesian=TRUE)}
+       if(input$plotT%in%c(2,4,6,8)){ dataT <- merge(location1,dataT,all.x=T,by=c("YEAR","LON","LAT"),allow.cartesian=TRUE)}
+       
+       dataT$PLOT[is.na(dataT$PLOT==T)] <- 0
+       dataT$bin2[is.na(dataT$bin2==T)] <- 0
+       dataT$CPUELAB[is.na(dataT$CPUELAB==T)] <- "0"
+       dataT$CPUELAB2[is.na(dataT$CPUELAB2==T)] <- "0"
+       dataT$ID2[is.na(dataT$ID2==T)] <- 1
+       dataT$ID[is.na(dataT$ID==T)] <- 1
+       dataT$color[is.na(dataT$color==T)] <- "gray80"
+       dataT<-dataT[order(dataT$ID2)]
+       
+       dataT$CPUELAB <- factor(dataT$CPUELAB,levels=label3$CPUELAB)
+       
+       dataT$YEAR<-factor(dataT$YEAR,levels=yers2)
+       td1$YEAR<-factor(td1$YEAR,levels=yers2)
+       
+       if(input$plotT%in%c(1,3,5,7,9))
+       {
+         nc=4
+         d <- ggplot(data=dataT,aes(x=TEMPR,y=-DEPTHR,color=factor(CPUELAB),shape=factor(CPUELAB),size=factor(CPUELAB)))
+         d <- d + geom_rect(data=td1,aes(fill=REGI),xmin=-Inf,xmax=Inf,ymin=-Inf,ymax=Inf,alpha=0.1,linetype=0)
+         d <- d + geom_point(data=dataT)
+         d <- d + scale_x_continuous(breaks=seq(-1,20,by=1))
+         d <- d + scale_size_manual(name=expression(paste("Number/k",m^2,sep="")),values=c(0.2,rep(1,(length(unique(dataT$bin2))-1))),labels=unique(dataT$CPUELAB2))
+         d <- d + xlab(expression("Temperature ("* degree * C *")"))
+         d <- d + ylab("Depth (m)")
+       }
+       
+       if(input$plotT%in%c(2,4,6,8))
+       {
+         
+         
+         B_sea <- map_data("world2","USA:alaska")
+         p <- ggplot()
+         
+         if(input$survey[1]==98){  p <- p + coord_fixed(ylim=c(51,65),xlim=c(179,205))
+         nc=5}
+         if(input$survey[1]==46){  p <- p + coord_fixed(ylim=c(50,58),xlim=c(190,201))
+         nc=3}
+         if(input$survey[1]==47){  p <- p + coord_fixed(ylim=c(52,61.5),xlim=c(200,213))
+         nc=3}
+         if(input$survey[1]==48){  p <- p + coord_fixed(ylim=c(53,61.5),xlim=c(213,230))
+         nc=3}
+         if(input$survey[1]==52){  p <- p + coord_fixed(ylim=c(51,55),xlim=c(170,195))
+         nc=2}
+         if(input$survey[1]==78){  p <- p + coord_fixed(ylim=c(51,63),xlim=c(175,195))
+         nc=2}
+         
+         d <- p + geom_polygon(data=B_sea,aes(x=long,y=lat,group=group))
+         d <- d + geom_point(data=dataT,aes(x=LON,y=LAT,color=CPUELAB,shape=CPUELAB,size=CPUELAB))
+         d <- d + geom_rect(data=td1,aes(fill=REGI),xmin=-Inf,xmax=Inf,ymin=-Inf,ymax=Inf,alpha=0.1,linetype=0)
+         
+         if(input$survey[1]==98){  d <- d + scale_x_continuous(breaks=seq(180,205,by=5),labels=seq(180,155,by=-5)) + ylab(expression(paste("Latitude ",degree," N",sep="")))+xlab(expression(paste("Longitude ",degree," W",sep=""))) }
+         if(input$survey[1]==46){  d <- d + scale_x_continuous(breaks=seq(190,216,by=2),labels=seq(170,144,by=-2)) + ylab(expression(paste("Latitude ",degree," N",sep="")))+xlab(expression(paste("Longitude ",degree," W",sep=""))) }
+         if(input$survey[1]==47){  d <- d + scale_x_continuous(breaks=seq(190,216,by=2),labels=seq(170,144,by=-2)) + ylab(expression(paste("Latitude ",degree," N",sep="")))+xlab(expression(paste("Longitude ",degree," W",sep=""))) }
+         if(input$survey[1]==48){  d <- d + scale_x_continuous(breaks=seq(190,230,by=2),labels=seq(170,130,by=-2)) + ylab(expression(paste("Latitude ",degree," N",sep="")))+xlab(expression(paste("Longitude ",degree," W",sep=""))) }
+         
+         
+         if(input$survey[1]==52){  d <- d + scale_x_continuous(breaks=seq(170,195,by=5),labels=c(170,175,seq(180,165,by=-5))) +ylab(expression(paste("Latitude ",degree," N",sep="")))+xlab(expression(paste("Longitude",sep=""))) }
+         if(input$survey[1]==78){  d <- d + scale_x_continuous(breaks=seq(175,195,by=5),labels=c(175,180,175,170,165)) +ylab(expression(paste("Latitude ",degree,sep="")))+xlab(expression(paste("Longitude ",degree," W",sep=""))) }
+         d <- d + scale_size_manual(name=expression(paste("Number/k",m^2,sep="")),values=c(0.1,rep(1,(length(unique(dataT$bin2))-1))),labels=unique(dataT$CPUELAB2))
+         
+       }
+       
+       d <- d + scale_fill_manual(name="Shelf temp.",values=c("light blue","white","salmon"))
+       d <- d + scale_color_manual(name=expression(paste("Number/k",m^2,sep="")),values=color1[sort(unique(dataT$ID))],labels=unique(dataT$CPUELAB2))
+       d <- d + scale_shape_manual(name=expression(paste("Number/k",m^2,sep="")),values=c(3,rep(16,(length(unique(dataT$bin2))-1))),labels=unique(dataT$CPUELAB2))
+       d <- d + ggtitle(title1)
+       
+       d <- d + theme(panel.spacing=unit(0,"lines"),
+                      panel.background = element_rect(fill = 'white', color = 'white'),
+                      plot.title=element_text(vjust=1,hjust=0),
+                      legend.key=element_rect(fill = 'white', color = 'white',linetype=0),
+                      legend.key.width=unit(1,"cm"),
+                      axis.text=element_text(size=6))
+       d <- d + guides(colour = guide_legend(keyheight=2,override.aes = list(size=1)))
+       d <- d + facet_wrap(~YEAR,ncol=nc,shrink=FALSE, drop=F) #ncol=nc
+       d <- d + theme1(base_size=20)
+       incProgress(1/5)
+       print(d)
+     
+      })
+    })
+    
+ 
+
+
+  output$plot5 <- renderPlot({
+    withProgress(message = 'Making plot', value = 0, {
+      biomass<-subset(BIOMASS,BIOMASS$SURVEY_DEFINITION_ID==input$survey.BIO & BIOMASS$SPECIES_CODE==input$species.BIO)
+      SN<-SN$COMMON_NAME[SN$SPECIES_CODE==input$species.BIO]
+        validate( need(sum(biomass$BIOM) > 0,"Species not detected for this survey area"))
+      plot_BIOM(data=biomass,sn=SN,ptype="B")
+      })
+    })
+      
+  output$plot6 <- renderPlot({
+      withProgress(message = 'Making plot', value = 0, {
+        biomass<-subset(BIOMASS,BIOMASS$SURVEY_DEFINITION_ID==input$survey.POP & BIOMASS$SPECIES_CODE==input$species.POP)
+        SN<-SN$COMMON_NAME[SN$SPECIES_CODE==input$species.POP]
+         validate( need(sum(biomass$POP) > 0,"Species not detected for this survey area"))
+        plot_BIOM(data=biomass,sn=SN,ptype="P")
+     
+        })
+    })
+  })
+
+
+  
+
