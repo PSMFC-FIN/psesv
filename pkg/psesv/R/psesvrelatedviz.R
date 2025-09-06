@@ -9,8 +9,7 @@
 ###generates HTML for related visualizations if they exist (other visualizations with same article number)
 psesvrelatedviz <- function (articleno, vizno)
 {
-  vizmetadata <- dplyr::filter(read.csv(paste(psesvroot, "metadata.csv",
-                                              sep = "")), art_number == articleno & viz_id != vizno)
+  vizmetadata <- dplyr::filter(data.table::fread('https://raw.githubusercontent.com/PSMFC-FIN/psesv/main/metadata.csv'), art_number == articleno & viz_id != vizno)
   htmlcode <- "<p>Related visualizations</br>"
   for (i in 1:nrow(vizmetadata)) {
     vizurl <- paste(psesvroot, vizmetadata$viz_url[i], sep = "")

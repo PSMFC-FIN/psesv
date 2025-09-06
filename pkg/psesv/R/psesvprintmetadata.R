@@ -13,9 +13,8 @@ psesvprintmetadata <- function(articleno, vizno) {
   ### need to decide whether to use relative or absolute links here, relative links
   ### may not work if apps can be in subfolders
 
-  articleurl <- paste(psesvroot, vizmetadata$art_url, sep = "")
-  methodsfile <-
-    paste (psesvroot, "METHODS/", vizmetadata$art_methodsfile, sep = "")
+  articleurl <- vizmetadata$art_url
+  methodsfile <-vizmetadata$art_methodsfile
 
   articleinfo <-  tags$div(
     class = "articleinfo",

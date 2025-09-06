@@ -12,4 +12,6 @@ psesvroot <- "https://psesv.psmfc.org/"
 #'
 #' @export
 psesvheader <- dashboardHeader(titleWidth = "95%",
-                               title = (div(includeHTML(paste(psesvroot,"dashboardheader.html", sep="")))))
+                               title = (div(
+                                 includeHTML(system.file("www/dashboardheader.html", package = "psesv"))
+                                 )))

@@ -4,7 +4,9 @@
 \name{psesvroot}
 \alias{psesvroot}
 \title{PSESV root directory}
-\format{An object of class \code{character} of length 1.}
+\format{
+An object of class \code{character} of length 1.
+}
 \usage{
 psesvroot
 }

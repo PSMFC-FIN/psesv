@@ -4,7 +4,9 @@
 \name{psesvheader}
 \alias{psesvheader}
 \title{Shiny dashboard header for PSESV}
-\format{An object of class \code{shiny.tag} of length 3.}
+\format{
+An object of class \code{shiny.tag} of length 3.
+}
 \usage{
 psesvheader
 }
