@@ -1,21 +1,22 @@
 Package: psesvapp_viz1
 Type: Shiny
 Title: Visualizations of groundfish distributions from the Alaska Fisheries Science Center bottom trawl surveys
-Authors@R: 
-  c(person("Steven", "Barbeaux", 
-           email = "steve.barbeaux@noaa.gov", 
-           role = c("aut", "cre")))
-Description: Article for the Pacific States E-Journal of Scientific Visualizations
 Version: 0.0.1
-Imports:
-  shiny,
-shinydashboard,
-lattice,
-data.table,
-maps,
-ggplot2,
-grid,
-sp,
-rgdal,
-dplyr
-
+Authors@R: 
+    c(
+      person("Steven", "Barbeaux", 
+             email = "steve.barbeaux@noaa.gov", 
+             role = c("aut", "cre"))
+    )
+Description: Article for the Pacific States E-Journal of Scientific Visualizations
+Imports: 
+    shiny,
+    shinydashboard,
+    lattice,
+    data.table,
+    maps,
+    ggplot2,
+    grid,
+    sp,
+    rgdal,
+    dplyr
