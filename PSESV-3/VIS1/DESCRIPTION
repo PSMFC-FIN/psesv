@@ -1,0 +1,26 @@
+Package: psesvapp_viz3a
+Type: Shiny
+Title: Spatial and temporal visualizations of satellite-derived sea surface temperatures for Alaska fishery management areas: Daily, weekly, and monthly sea surface temperatures in the North Pacific
+Version: 0.0.1
+Authors@R: 
+    c(
+      person("Jordan", "Watson", 
+             email = "jordan.watson@noaa.gov", 
+             role = c("aut", "cre"))
+    )
+Description: Article for the Pacific States E-Journal of Scientific Visualizations
+Imports: 
+    shiny,
+    dplyr,
+	  ggplot2,
+	  viridis,
+	  sf,
+	  sp,
+	  terra,
+	  leaflet,
+	  htmltools,
+	  shinycssloaders,
+	  shinyWidgets,
+	  psesv
+Remotes:
+    PSMFC-FIN/psesv/subdir=pkg/psesv

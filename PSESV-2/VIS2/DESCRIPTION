@@ -1,0 +1,23 @@
+Package: psesvapp_viz2b
+Type: Shiny
+Title: Economic Status of the Groundfish Fisheries off Alaska Data Visualizations, Fishing Effort Data
+Version: 0.0.1
+Authors@R: 
+    c(
+      person("Ben", "Fissel", 
+             email = "ben.fissel@noaa.gov", 
+             role = c("aut", "cre"))
+    )
+Description: Article for the Pacific States E-Journal of Scientific Visualizations
+Imports: 
+    shiny,
+    shinydashboard,
+    dplyr,
+	reshape2,
+	ggplot2,
+	xtable,
+	scales,
+	ggthemes,
+	psesv
+Remotes:
+    PSMFC-FIN/psesv/subdir=pkg/psesv

@@ -6,7 +6,7 @@ require(maps)
 require(ggplot2)
 require(grid)
 require(sp)
-require(rgdal)
+##require(rgdal)
 require(dplyr)
 
 results<-readRDS('data/results.rds')
