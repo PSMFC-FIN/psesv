@@ -1,5 +1,6 @@
 ### deploy psesv-1 visualization to NMFS Posit Connect
-
+getwd()
+setwd("VIS2")
 
 api_file <- rstudioapi::selectFile(
   caption = "Select API key file",

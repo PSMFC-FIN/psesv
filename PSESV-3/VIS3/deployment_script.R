@@ -3,7 +3,7 @@
 library(rstudioapi)
 
 getwd()
-setwd("VIS1")
+setwd("../VIS3")
 
 api_file <- rstudioapi::selectFile(
   caption = "Select API key file",

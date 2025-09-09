@@ -2,6 +2,9 @@
 install.packages("rstudioapi")
 library(rstudioapi)
 
+getwd()
+setwd("PSESV-2/VIS1")
+
 api_file <- rstudioapi::selectFile(
   caption = "Select API key file",
   filter = "Text files (*.txt);;All files (*)"

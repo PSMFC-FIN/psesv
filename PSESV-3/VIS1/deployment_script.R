@@ -3,7 +3,7 @@
 library(rstudioapi)
 
 getwd()
-setwd("../VIS1")
+setwd("PSESV-3/VIS1")
 
 api_file <- rstudioapi::selectFile(
   caption = "Select API key file",
