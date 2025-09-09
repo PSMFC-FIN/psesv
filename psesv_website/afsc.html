@@ -1,0 +1,125 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>Pacific States E-Journal of Scientific Visualizations</title>
+
+<link rel="stylesheet" href="style/journalstyle.css"/>
+<link href="https://fonts.googleapis.com/css?family=Open+Sans|Lusitana" rel="stylesheet">
+<link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
+
+<script type="text/javascript" src="https://code.jquery.com/jquery-latest.js"></script>
+<script src="https://use.fontawesome.com/1cb7a2880e.js"></script>
+
+<!-- includeHTML -->
+<script src="assets/includehtml.js"></script>
+<!-- jcarousel assets -->
+<link rel="stylesheet" type="text/css" href="style/jcarousel.css">
+<script type="text/javascript" src="jquery.jcarousel.min.js"></script>
+<script type="text/javascript" src="jcarousel.js"></script>
+<script language="JavaScript1.2" type="text/javascript">
+
+<!-- Global site tag (gtag.js) - Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-113916739-1"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'UA-113916739-1');
+</script>
+
+<!--
+  function pageInit() {   // for onLoad event code
+    return this;
+  }
+// -->
+</script>
+</head>
+<body class="articles">
+<div w3-include-html="header.html"></div>
+<div style="background-color:#fff;">
+  <div class="container">
+     <p id="breadcrumb"><a href="http://www.psmfc.org">Pacific States Marine Fisheries Commmission</a> > <a href="index.html">PSESV</a> > Articles > Alaska Fisheries Science Center</p>
+    <div w3-include-html="nav.html"></div>
+   <div class="content">
+   <h2 >Articles - Alaska Fisheries Science Center</h2>
+   
+       <div class="articlesummary"> 
+    <a href="PSESV1.html">
+      <div>
+        <h4>Visualizations of groundfish distributions from the Alaska Fisheries Science Center bottom trawl surveys</h4>
+        <p>Steven J. Barbeaux</br>
+          <span class="metadata">Article number: </span>1</br>
+          <span class="metadata">Version of record online: </span>17 JANUARY 2018</br>
+          <span class="metadata">DOI: </span>10.28966/PSESV.2018.001</p>
+      </div>
+      </a>
+      <p style="margin-bottom:5px;"><span class="arrow">&#9660</span> <span class="metadata">Abstract</span></p>
+      <div class="abstract">
+        <p>Visualization of the distribution and centroids of groundfish surveyed during the Alaska  Fisheries Science Center standardized bottom trawl surveys of the eastern Bering Sea (EBS) shelf, Gulf of Alaska shelf, Aleutian Islands shelf and eastern Bering Sea Slope are provided. During these surveys researchers have collected species composition and bottom temperature for all tows as well as measurements from all fish species encountered. These data have been used to create visualizations of spatial distribution  and distribution  by bottom depth and temperature by length bins for all available surveys for groundfish and skate species where adequate length data have been collected ( >2000 specimen per species per survey). This provides a unique look at the spatial and environmental preferences of a wide variety of species, as well as ontogenetic shifts in spatial distribution and environmental preferences. The visualizations provided are meant to facilitate a better understanding of the life histories of these species over time and space and provide clues to how climate change may potentially impact species at different life stages.</p>
+      </div>
+    </div>
+    
+    
+    <div class="articlesummary"> 
+    <a href="PSESV2.html">
+      <div>
+        <h4>Economic Status of the Groundfish Fisheries off Alaska Data Visualizations</h4>
+        <p>Ben Fissel</br>
+          <span class="metadata">Article number: </span>2</br>
+          <span class="metadata">Version of record online: </span>2 MAY 2019</br>
+          <span class="metadata">DOI: </span>10.28966/PSESV.2018.002</p>
+      </div>
+      </a>
+      <p style="margin-bottom:5px;"><span class="arrow">&#9660</span> <span class="metadata">Abstract</span></p>
+      <div class="abstract">
+        <p>Visualization of selected ex-vessel, first-wholesale, and effort statistics from the Groundfish Economic SAFE report</p>
+      </div>
+    </div>
+    
+        <div class="articlesummary"> <a href="PSESV3.html">
+      <div>
+        <h4>Spatial and temporal visualizations of satellite-derived sea surface temperatures for Alaska fishery management areas</h4>
+        <p>Jordan T. Watson</br>
+          <span class="metadata">Article number: </span>3</br>
+          <span class="metadata">Version of record online: </span>3 JUN 2019</br>
+          <span class="metadata">DOI: </span>10.28966/PSESV.2019.003</p>
+      </div>
+      </a>
+      <p style="margin-bottom:5px;"><span class="arrow">&#9660</span> <span class="metadata">Abstract</span></p>
+      <div class="abstract">
+        <p>A common pursuit in fisheries research is to understand the relationship between fisheries data and the surrounding environment. However, environmental data are often unavailable at similar scales as fishery data. To mitigate this disconnect, more than 6,000 daily satellite datasets (containing ~ 24 billion individual temperature records) from 2003—2019 were rectified with spatial fisheries management areas. This union facilitates a smoother linkage between satellite-derived sea surface temperatures and the spatial management units often used by state and federal scientists in Alaska. Visualizations of these data help users to explore the spatial (e.g., state and federal management grids) and temporal (e.g., daily, weekly, monthly) scales of the data and allow users to filter, download, and visualize trends. For users in regions outside of Alaska, R code can easily be modified for different spatial regions to integrate NASA or other environmental satellite data with spatially-explicit fishery information.</p>
+      </div>
+    </div>
+   
+   
+  </div>
+</div>
+
+
+<script>
+jQuery(document).ready(function() {
+    $("span.arrow").click(function(){
+					 if ($(this).text()=='▼')
+		 {
+			 $(this).text('▲');
+		 }
+		 else
+		 {$(this).text('▼');
+		 }					 							 
+								 
+         $(this).parent("p").next("div.abstract").slideToggle("fast");
+		 		 
+    });
+});
+
+</script>
+<script>
+includeHTML();
+</script>
+
+</body>
+</html>
+
+

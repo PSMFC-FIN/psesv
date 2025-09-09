@@ -1,0 +1,521 @@
+@charset "utf-8";
+/* CSS Document */
+
+/******************************************
+CSS reset 
+
+http://meyerweb.com/eric/tools/css/reset/ 
+   v2.0 | 20110126
+   License: none (public domain)
+*******************************************/
+
+
+html, body, div, span, applet, object, iframe,
+h1, h2, h3, h4, h5, h6, p, blockquote, pre,
+a, abbr, acronym, address, big, cite, code,
+del, dfn, em, img, ins, kbd, q, s, samp,
+small, strike, strong, sub, sup, tt, var,
+b, u, i, center,
+dl, dt, dd, ol, ul, li,
+fieldset, form, label, legend,
+table, caption, tbody, tfoot, thead, tr, th, td,
+article, aside, canvas, details, embed, 
+figure, figcaption, footer, header, hgroup, 
+menu, nav, output, ruby, section, summary,
+time, mark, audio, video {
+	margin: 0;
+	padding: 0;
+	border: 0;
+	font-size: 100%;
+	font: inherit;
+	vertical-align: baseline;
+
+}
+/* HTML5 display-role reset for older browsers */
+article, aside, details, figcaption, figure, 
+footer, header, hgroup, menu, nav, section {
+	display: block;
+}
+html, body {
+	line-height: normal;
+}
+ol, ul {
+	list-style: none;
+}
+blockquote, q {
+	quotes: none;
+}
+blockquote:before, blockquote:after,
+q:before, q:after {
+	content: '';
+	content: none;
+}
+table {
+	border-collapse: collapse;
+	border-spacing: 0;
+}
+
+
+
+/*********************************************
+generic tag styling 
+**********************************************/
+html, body {
+	height:101%;
+	background-color:#fff;
+}
+
+a:link, a:visited {
+	text-decoration:none;
+	color:#4288BA;
+	border-bottom: 1px dotted #4288BA;
+}
+
+a:hover, a:active {
+	text-decoration:none;
+	color:#CC9900;
+	border-bottom:1px solid #CC9900;
+}
+
+hr {
+	border-top: 1px dotted #8c8b8b;
+	margin:20px 0px 20px 0px;
+}
+
+.container {
+	margin:0 auto;
+	width: 775px;
+	padding:0px 10px 0px 10px;
+	background-color:#inherit;
+}
+
+
+/********************************************
+PSMFC header 
+*********************************************/
+#psmfc {
+background-color:#022e4b;
+
+}
+
+#psmfc p {
+	font: bold 14px Georgia, "Times New Roman", Times, serif;
+	font-style: italic;
+	color: #ffffff;
+	padding:10px 0px 10px 0px;;
+}
+
+#psmfc a, 
+#psmfc a:link, 
+#psmfc a:visited, 
+#psmfc a:hover, 
+#psmfc a:active {
+	color:#FFF;
+	text-decoration:none;
+	border:none;
+}
+
+
+/**********************************************
+PSESV header 
+***********************************************/
+
+/*#psesv {
+	background-image: url('../images/psesv_background.png'); 
+	/*opacity:.9;*/ 
+	/*padding-top:15px; 
+	padding-bottom:15px;
+		-webkit-box-shadow: 0px 2px 2px rgba(110, 107, 110, 1);
+	-moz-box-shadow:0px 2px 2px rgba(110, 107, 110, 1);
+	box-shadow: 0px 2px 2px rgba(110, 107, 110, 1);
+	
+}*/
+
+
+/* it's more fun with gradients!*/
+#psesv {
+	background: -moz-linear-gradient(bottom, rgba(0, 0, 0, 0) 0%, rgba(2, 46, 75, 0) 0%, rgba(2, 46, 75.65) 100%), url('../images/psesv_background.png');
+	background: -webkit-gradient(linear, left bottom, left top, color-stop(0%, rgba(2, 46, 75, 0)), color-stop(100%, rgba(2, 46, 75, 0)), color-stop(100%, rgba(2, 46, 75, 0.65))), url('../images/psesv_background.png') no-repeat;
+	background: -webkit-linear-gradient(bottom, rgba(0, 0, 0, 0) 0%, rgba(2, 46, 75, 0) 0%, rgba(2, 46, 75, 0.65) 100%), url('../images/psesv_background.png');
+	background: -o-linear-gradient(bottom, rgba(0, 0, 0, 0) 0%, rgba(2, 46, 75, 0) 0%, rgba(2, 46, 75, 0.65) 100%), url('../images/psesv_background.png');
+	background: -ms-linear-gradient(bottom, rgba(0, 0, 0, 0) 0%, rgba(2, 46, 75, 0) 0%, rgba(2, 46, 75, 0.65) 100%), url('../images/psesv_background.png');
+	background: linear-gradient(to top, rgba(0, 0, 0, 0) 0%, rgba(2, 46, 75, 0) 0%, rgba(2, 46, 75, 0.65) 100%), url('../images/psesv_background.png');
+	padding-top:15px;
+	padding-bottom:15px;
+	-webkit-box-shadow: 0px 2px 2px rgba(110, 107, 110, 1);
+	-moz-box-shadow:0px 2px 2px rgba(110, 107, 110, 1);
+	box-shadow: 0px 2px 2px rgba(110, 107, 110, 1);
+}
+#psesv h1 {
+	font-family:  'Lusitana', 'Goudy Old Style', Times, sans serif;
+	font-size:42px;
+	font-weight:500;
+	color: #ffffff;
+	padding:0;
+	margin:0;
+	text-shadow: 0px 2px 2px #022e4b;
+	filter: glow(color=#022e4b, strength=3); /* IE */
+	line-height:110%;
+ text-align;
+left;
+}
+
+#psesv a, 
+#psesv a:link, 
+#psesv a:visited, 
+#psesv a:hover, 
+#psesv a:active {
+	color:#FFF;
+	text-decoration:none;
+	border:none;
+}
+
+
+/**********************************************
+breadcrumb links
+***********************************************/
+
+#breadcrumb {
+	margin:20px 0px 30px 0px;
+	font-family:'Open Sans', Verdana, Geneva, sans-serif;
+	font-size:.8em;
+	color:#000;
+	width:100%;
+}
+
+#breadcrumb a, 
+#breadcrumb a:link, 
+#breadcrumb a:visited {
+	color:#000;
+	border-bottom:none;
+}
+
+#breadcrumb a:hover, 
+#breadcrumb a:active {
+	text-decoration:none;
+	color:#CC9900;
+	border-bottom:none;
+}
+
+
+/**********************************************
+navigation: menu, filters
+***********************************************/
+
+#nav {
+	float:left;
+	width:175px;
+	position:fixed;
+		font-family:'Open Sans', Arial, Helvetica, sans-serif;
+	font-size:18px;
+	font-weight:300;
+}
+
+.menu {
+	margin: 5px 0px 30px 0px;
+}
+/*.menu p {
+	background-color:#022e4b;
+	color:#FFF;
+	text-align:left;
+	padding: 5px 5px 5px 10px;
+	margin: 0px 0px 3px 0px;
+	font-family:'Open Sans', Arial, Helvetica, sans-serif;
+	font-size:14px;
+	font-weight:300;
+}*/
+
+.menu p {
+	background-color:#FFF;
+	color:#000;
+	text-align:left;
+	padding: 3px 0px 7px 15px;
+	margin: 0px 0px 3px 0px;
+	/*font-family:'Open Sans', Arial, Helvetica, sans-serif;
+	font-size:18px;
+	font-weight:300;*/
+}
+
+.menu p:hover {
+	border-left: #014977 solid 5px;
+	padding-left:10px;
+	color:#014977;
+	/*background-color: #f7fbfc;*/
+}
+
+.articles p#articles, .about p#about, .guidelines p#guidelines, .submit p#submit, .contact p#contact {
+	/*border-left: #014977 solid 5px;
+	padding-left:10px;*/
+	color:#014977;
+	font-weight:bold;
+}
+
+.menu a,
+.menu a:link,
+.menu a:visited,
+.menu a:hover,
+.menu a:active {
+	text-decoration:none;
+	color:#FFF;
+	border:none;
+}
+
+
+#nav select {
+	margin: 0px 0px 5px 15px;
+	width:90%;
+	display: block;
+	padding: 10px 50px 10px 13px !important;
+	max-width: 100%;
+	height: auto !important;
+	border: 3px solid #e3e3e3;
+	border-radius: 5px;
+	background: url("https://image.ibb.co/iMeAJv/selectbox_arrow.png") right center no-repeat;
+	background-color: #fff;
+	color: #444444;
+	font-size: 16px;
+	line-height: 16px !important;
+	appearance: none; /* this is must */
+	-webkit-appearance: none;
+	-moz-appearance: none;
+} /* body select.select_box option */
+#nav select option {
+	padding: 0 4px;
+} /* for IE and Edge */
+#nav select::-ms-expand {
+display: none;
+}
+#nav select:disabled::-ms-expand {
+background: #f60;
+}
+
+
+
+
+/**********************************************
+main content - generic styling
+***********************************************/
+.content {
+	padding-left:40px;
+	overflow:hidden;
+	padding-bottom:100px;
+	margin-left:185px;
+	margin-top:55px;
+}
+
+.content p {
+	font-family:	  	'Open Sans', Arial, Helvetica, sans-serif;
+	font-size:.9em;
+	margin:3px 0px 0px 0px;
+	margin-bottom:20px;*/
+}
+
+.content a:link, 
+.content a:visited {
+	text-decoration:none;
+	color:#4288BA;
+	border-bottom: 1px dotted #4288BA;
+}
+
+.content a:hover, 
+.content a:active {
+	text-decoration:none;
+	color:#CC9900;
+	border-bottom:1px solid #CC9900;
+}
+.content h1,
+.content h2,
+.content h3
+{
+	font-family:	  	'Open Sans', Arial, Helvetica, sans-serif;
+	color:#014977;}
+
+
+.content h1
+{
+	font-size: 32px;
+	margin-bottom:25px;
+}
+.content h2 {
+	font-size: 24px;
+	margin-bottom:18px;
+}
+.content h3 {
+	font-size:18px;
+	margin-top:20px;
+	padding-bottom:3px;
+	margin-bottom:8px;
+	border-bottom: thin #014977 dotted;
+}
+
+
+/**********************************************
+article summaries/snapshots
+***********************************************/
+.articlesummary {
+	background-color:#f0f3f5;
+	padding:0px 0 5px 0px;
+	margin-bottom:25px;
+	padding:20px 25px 10px 18px;
+}
+
+.articlesummary:hover {
+	background-color:#e1e6ea;
+}
+
+.articletitle {
+font-size:36px;
+}
+
+.articlesummary a:link, 
+.articlesummary a:visited, 
+.articlesummary a:hover, 
+.articlesummary a:active {
+	text-decoration:none;
+	border:none;
+	color:inherit;
+	font-size:inherit;
+	font-weight:inherit;
+	line-height:inherit;
+}
+
+.articlesummary h4 
+{font-size:18px;
+color:#4288BA;
+font-family: 'Open Sans', Arial, Helvetica, sans-serif;
+margin:0px 0px 15px 0px;
+
+}
+
+.metadata {
+	color:#52697a;
+}
+
+
+.abstract {
+	display:none;
+}
+.abstract p {
+	font-size:.9em;
+}
+.arrow {
+	color:#4288BA;
+}
+.arrow:hover {
+	color:#CC9900;
+	cursor:pointer
+}
+
+
+.icon {
+	float:left;
+	display:inline-block;
+}
+.vizlinks {
+	display:block;
+	margin: 0px 0px 0px 0px;
+	padding: 0px 0px 5px 5px;
+	font-family:'Open Sans', Arial, Helvetica, sans-serif;
+	font-size:.9em;
+	font-weight:900;
+}
+.vizlinks a:link, a:visited, a:hover, a:active {
+	text-decoration:none;
+	border:none;
+}
+
+
+.methodslink {
+	display:block;
+	padding: 0px 0px 0px 30px;
+	font-family:'Open Sans', Arial, Helvetica, sans-serif;
+	font-size:.9em;
+	font-weight:900;
+}
+.methodslink a:link, a:visited, a:hover, a:active {
+	text-decoration:none;
+	border:none;
+}
+
+.refcite {
+	display:block;
+	margin: 0px 0px 0px 0px;
+	padding: 0px 0px 5px 5px;
+	font-family:'Open Sans', Arial, Helvetica, sans-serif;
+	font-size:.9em;
+}
+
+.metadata_ul  {
+	margin: 0px 0px 20px 0px;
+	padding: 0px 0px 0px 0px;
+}
+
+/**********************************************
+methods - HTML  version
+***********************************************/
+
+
+ #methods a:link, 
+ #methods a:visited, 
+ #methods a:hover, 
+ #methods a:active {
+	text-decoration:none;
+	border:none;
+	color:inherit;
+	font-size:inherit;
+	font-weight:inherit;
+	line-height:inherit;
+}
+
+
+#methods ol
+#methods li{
+	font-family:font-family:'Open Sans', Arial, Helvetica, sans-serif;
+	
+}
+ #methods p
+ {
+font-family:'Open Sans', Arial, Helvetica, sans-serif;
+padding-bottom:12px;
+	
+}
+
+ #methods h1,
+ #methods h2,
+ #methods h3,
+ #methods h4
+{
+	font-family:	  	'Open Sans', Arial, Helvetica, sans-serif;
+	color:#014977;
+}
+
+#methods h1 
+{
+font-size:30px;	
+padding:10px 0px 6px 0px;
+}
+
+#methods h2
+{
+font-size:24px;	
+padding:10px 0px 6px 0px;
+}
+
+#methods h3
+{
+font-size:20px;	
+padding:10px 0px 6px 0px;
+}
+
+#methods h4
+{
+font-size:20px;	
+}
+
+#TOC
+{font-family:	  	'Open Sans', Arial, Helvetica, sans-serif;
+	color:#014977;}
+
+.tocify 
+{font-family:	  	'Open Sans', Arial, Helvetica, sans-serif;
+	color:#014977;}
