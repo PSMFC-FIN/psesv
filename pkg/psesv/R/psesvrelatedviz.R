@@ -12,7 +12,7 @@ psesvrelatedviz <- function (articleno, vizno)
   vizmetadata <- dplyr::filter(data.table::fread('https://raw.githubusercontent.com/PSMFC-FIN/psesv/main/metadata.csv'), art_number == articleno & viz_id != vizno)
   htmlcode <- "<p>Related visualizations</br>"
   for (i in 1:nrow(vizmetadata)) {
-    vizurl <- paste(psesvroot, vizmetadata$viz_url[i], sep = "")
+    vizurl <- vizmetadata$viz_url[i]
     viztitle <- vizmetadata$viz_title[i]
     vizlinkhtml <- paste("<a href=\"", vizurl, "\"> <i class=\"fa fa-line-chart fa-lg\" aria-hidden=\"true\"></i> &nbsp ",
                          viztitle, "</a><br>", sep = "")
